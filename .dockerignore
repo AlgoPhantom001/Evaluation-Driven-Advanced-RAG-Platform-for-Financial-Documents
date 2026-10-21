@@ -1,0 +1,14 @@
+.venv/
+data/
+evals/reports/
+.git/
+.github/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+__pycache__/
+*.pyc
+*.log
+scripts/_probe_*.py
+tests/

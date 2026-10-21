@@ -1,0 +1,27 @@
+{
+  "trained": true,
+  "n_queries": 30,
+  "n_candidates": 1200,
+  "cv_ndcg": 0.6793,
+  "baseline_ndcg_fusion_order": 0.6011,
+  "lift_vs_fusion": 0.0782,
+  "feature_importance": {
+    "section_id": 296,
+    "rrf_score": 214,
+    "numeric_density": 128,
+    "token_estimate": 96,
+    "query_tokens": 77,
+    "splade_rank_inv": 75,
+    "bm25_score": 57,
+    "splade_score": 53,
+    "lexical_coverage": 48,
+    "dense_rank_inv": 38,
+    "dense_score": 36,
+    "year_recency": 27,
+    "bm25_rank_inv": 22,
+    "lexical_overlap": 10,
+    "arm_count": 7,
+    "is_table": 3
+  },
+  "model_path": "C:\\Users\\PIYUSH\\sec-rag-platform\\data\\index\\ltr_ranker.txt"
+}

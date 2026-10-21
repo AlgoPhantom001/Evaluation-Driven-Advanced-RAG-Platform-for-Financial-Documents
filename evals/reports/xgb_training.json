@@ -1,0 +1,31 @@
+{
+  "trained": true,
+  "n_queries": 30,
+  "n_candidates": 1200,
+  "cv_ndcg": 0.6782,
+  "cv_mrr": 0.775,
+  "cv_recall": 0.2383,
+  "baseline_ndcg_fusion_order": 0.6011,
+  "baseline_mrr_fusion_order": 0.7303,
+  "baseline_recall_fusion_order": 0.2095,
+  "lift_vs_fusion": 0.0771,
+  "feature_importance": {
+    "arm_count": 0.25195109844207764,
+    "section_id": 0.11579126864671707,
+    "splade_rank_inv": 0.09508144110441208,
+    "rrf_score": 0.0776372030377388,
+    "is_table": 0.07099184393882751,
+    "query_tokens": 0.061723124235868454,
+    "lexical_coverage": 0.04084785655140877,
+    "numeric_density": 0.03806133568286896,
+    "lexical_overlap": 0.03607693314552307,
+    "token_estimate": 0.03538413345813751,
+    "year_recency": 0.03362034633755684,
+    "bm25_score": 0.031080903485417366,
+    "splade_score": 0.031049245968461037,
+    "dense_rank_inv": 0.03099987469613552,
+    "dense_score": 0.029447494074702263,
+    "bm25_rank_inv": 0.02025591768324375
+  },
+  "model_path": "C:\\Users\\PIYUSH\\sec-rag-platform\\data\\index\\ltr_ranker_xgb.json"
+}

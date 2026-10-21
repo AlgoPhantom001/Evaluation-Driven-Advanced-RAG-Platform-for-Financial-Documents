@@ -1,0 +1,11 @@
+{
+  "hit_rate@6": 0.8,
+  "ndcg@6": 0.68,
+  "mrr": 0.65,
+  "citation_validity": 0.95,
+  "citation_density": 0.9,
+  "groundedness": 0.65,
+  "numeric_accuracy": 0.9,
+  "routing_accuracy": 0.85,
+  "refusal_correctness": 0.85
+}

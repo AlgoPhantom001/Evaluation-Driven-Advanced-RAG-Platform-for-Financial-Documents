@@ -1,0 +1,68 @@
+name: Keep Spaces awake
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping Spaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Wake each Space
+        run: |
+          SPACES="
+          https://github.com/AlgoPhantom001/Evaluation-Driven-Advanced-RAG-Platform-for-Financial-Documents (no live Spaces demo configured)
+          "
+
+          FAILED=0
+          for url in $SPACES; do
+            [ -z "$url" ] && continue
+            echo "----------------------------------------------------------"
+            echo "Pinging $url"
+
+            code=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 90 "$url" || echo "000")
+
+            case "$code" in
+              200|201|202|302|303)
+                echo "  ok (HTTP $code)"
+                ;;
+              000)
+                echo "  no response within 90s. The Space may be building."
+                ;;
+              404)
+                echo "  HTTP 404. Check the URL, or the Space was renamed or deleted."
+                FAILED=1
+                ;;
+              *)
+                echo "  unexpected HTTP $code"
+                FAILED=1
+                ;;
+            esac
+          done
+
+          echo "----------------------------------------------------------"
+          if [ "$FAILED" -eq 1 ]; then
+            echo "At least one Space did not respond as expected."
+            exit 1
+          fi
+          echo "All Spaces pinged."
+
+      - name: Note the run in the job summary
+        if: always()
+        run: |
+          {
+            echo "# Keep-warm ping"
+            echo
+            echo "Ran at $(date -u '+%Y-%m-%d %H:%M UTC')."
+            echo
+            echo "Free Spaces sleep after 48 hours idle. This runs every 12 hours,"
+            echo "so a Space should never be asleep when someone opens the link."
+            echo
+            echo "> GitHub disables scheduled workflows on repositories with no"
+            echo "> activity for 60 days. If you stop pushing for two months, re-enable"
+            echo "> this from the Actions tab."
+          } >> "$GITHUB_STEP_SUMMARY"

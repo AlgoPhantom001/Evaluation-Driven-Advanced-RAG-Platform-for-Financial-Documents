@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUNBUFFERED: "1"
+  SECRAG_LLM_PROVIDERS: echo
+  SECRAG_ENABLE_SPLADE: "false"
+
+jobs:
+  quality:
+    name: Lint, types, tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Ruff (lint)
+        run: ruff check src tests --output-format=github
+
+      - name: Ruff (format check)
+        run: ruff format --check src tests
+
+      - name: Mypy (strict)
+        if: matrix.python-version == '3.12'
+        run: mypy src
+
+      - name: Tests
+        run: pytest tests/unit -v --cov=secrag --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+          retention-days: 14
+
+  build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: sec-rag-platform:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test the container
+        run: |
+          docker run -d --name secrag -p 7860:7860 \
+            -e SECRAG_LLM_PROVIDERS=echo sec-rag-platform:ci
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:7860/health > /dev/null; then
+              echo "service is healthy"
+              curl -s http://localhost:7860/health
+              docker rm -f secrag
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "service failed to become healthy"
+          docker logs secrag
+          exit 1

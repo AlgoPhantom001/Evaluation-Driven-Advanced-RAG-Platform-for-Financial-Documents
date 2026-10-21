@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sec-rag-platform</title>
+<style>
+:root {
+  --bg: #0b0d10;
+  --panel: #12151a;
+  --panel-2: #171b21;
+  --border: #242a33;
+  --text: #e6e9ef;
+  --muted: #8b94a3;
+  --accent: #5b9cf8;
+  --accent-dim: #1e3a5f;
+  --good: #3fb950;
+  --warn: #d29922;
+  --bad: #f85149;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+a { color: var(--accent); }
+header {
+  border-bottom: 1px solid var(--border); padding: 14px 24px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  background: var(--panel); position: sticky; top: 0; z-index: 10;
+}
+header h1 { font-size: 15px; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+header .tag {
+  font-size: 11px; color: var(--muted); border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 999px; font-family: var(--mono);
+}
+header .spacer { flex: 1; }
+#corpus { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+main { max-width: 1240px; margin: 0 auto; padding: 24px; }
+.ask { display: flex; gap: 10px; margin-bottom: 12px; }
+#q {
+  flex: 1; background: var(--panel); border: 1px solid var(--border); color: var(--text);
+  padding: 13px 15px; border-radius: 9px; font-size: 15px; font-family: inherit;
+}
+#q:focus { outline: none; border-color: var(--accent); }
+button {
+  background: var(--accent); color: #06121f; border: 0; padding: 13px 22px;
+  border-radius: 9px; font-weight: 650; cursor: pointer; font-size: 14px; font-family: inherit;
+}
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.ghost {
+  background: transparent; color: var(--muted); border: 1px solid var(--border); font-weight: 500;
+}
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
+.filters select, .filters input {
+  background: var(--panel); border: 1px solid var(--border); color: var(--text);
+  padding: 7px 10px; border-radius: 7px; font-size: 13px; font-family: inherit;
+}
+.filters label { font-size: 12px; color: var(--muted); }
+.samples { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.chip {
+  font-size: 12.5px; color: var(--muted); background: var(--panel);
+  border: 1px solid var(--border); padding: 6px 11px; border-radius: 999px; cursor: pointer;
+}
+.chip:hover { border-color: var(--accent); color: var(--text); }
+.grid { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); gap: 18px; }
+@media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+.card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 11px; padding: 18px; margin-bottom: 18px;
+}
+.card h2 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--muted); margin: 0 0 12px; font-weight: 650;
+}
+#answer { font-size: 15.5px; line-height: 1.75; white-space: pre-wrap; min-height: 26px; }
+#answer .cite {
+  display: inline-block; background: var(--accent-dim); color: var(--accent);
+  border-radius: 4px; padding: 0 5px; font-size: 11.5px; font-family: var(--mono);
+  cursor: pointer; margin: 0 1px; font-weight: 600; vertical-align: baseline;
+}
+#answer .cite:hover { background: var(--accent); color: #06121f; }
+.placeholder { color: var(--muted); font-style: italic; }
+.badges { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 14px; }
+.badge {
+  font-size: 11px; font-family: var(--mono); padding: 3px 9px;
+  border-radius: 999px; border: 1px solid var(--border); color: var(--muted);
+}
+.badge.good { color: var(--good); border-color: #1d572a; }
+.badge.warn { color: var(--warn); border-color: #5c4517; }
+.badge.bad  { color: var(--bad);  border-color: #6b2b28; }
+.src {
+  border: 1px solid var(--border); border-radius: 9px; padding: 11px 13px;
+  margin-bottom: 9px; background: var(--panel-2); cursor: pointer;
+}
+.src.active { border-color: var(--accent); }
+.src-head { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; flex-wrap: wrap; }
+.src-n {
+  background: var(--accent-dim); color: var(--accent); border-radius: 4px;
+  padding: 0 6px; font-size: 11px; font-family: var(--mono); font-weight: 600;
+}
+.src-label { font-size: 12.5px; font-weight: 600; }
+.src-score { margin-left: auto; font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.src-body {
+  font-size: 12.5px; color: var(--muted); max-height: 62px; overflow: hidden;
+  line-height: 1.55; white-space: pre-wrap;
+}
+.src.open .src-body { max-height: none; }
+.src-body.table { font-family: var(--mono); font-size: 11.5px; }
+.fig {
+  border-left: 2px solid var(--accent); padding: 8px 0 8px 12px; margin-bottom: 12px;
+}
+.fig-label { font-size: 12.5px; color: var(--muted); }
+.fig-value { font-size: 19px; font-family: var(--mono); font-weight: 600; margin: 2px 0; }
+.fig-formula { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+table.trace { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.trace td { padding: 4px 0; border-bottom: 1px solid var(--border); }
+table.trace td:first-child { color: var(--muted); }
+table.trace td:last-child { text-align: right; font-family: var(--mono); }
+.bar { height: 3px; background: var(--accent); border-radius: 2px; margin-top: 3px; }
+.err { color: var(--bad); font-size: 13px; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>sec-rag-platform</h1>
+  <span class="tag">hybrid retrieval + XBRL verification</span>
+  <span class="spacer"></span>
+  <span id="corpus">loading...</span>
+  <a href="/docs" style="font-size:12px">API</a>
+</header>
+
+<main>
+  <div class="ask">
+    <input id="q" placeholder="Ask about the indexed 10-K filings..." autocomplete="off">
+    <button id="go">Ask</button>
+  </div>
+
+  <div class="filters">
+    <label>Company</label>
+    <select id="ticker"><option value="">All</option></select>
+    <label>Reranker</label>
+    <select id="reranker">
+      <option value="cross_encoder">cross-encoder</option>
+      <option value="ltr">learning-to-rank</option>
+      <option value="none">none (fusion only)</option>
+    </select>
+    <label><input type="checkbox" id="cache" checked> cache</label>
+  </div>
+
+  <div class="samples" id="samples"></div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h2>Answer</h2>
+        <div id="answer" class="placeholder">Ask a question to begin.</div>
+        <div class="badges" id="badges"></div>
+        <div id="error" class="err"></div>
+      </div>
+      <div class="card" id="figures-card" style="display:none">
+        <h2>Verified figures (computed from filed XBRL)</h2>
+        <div id="figures"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Sources</h2>
+        <div id="sources" class="placeholder">Retrieved passages appear here.</div>
+      </div>
+      <div class="card">
+        <h2>Trace</h2>
+        <table class="trace"><tbody id="trace">
+          <tr><td colspan="2" class="placeholder">No request yet.</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const state = { contexts: [], streaming: false };
+
+const SAMPLES = [
+  "What supply chain risks does Apple disclose?",
+  "What was Apple's gross margin in fiscal 2024?",
+  "What does NVIDIA say about export controls?",
+  "How much did Microsoft's revenue grow from 2022 to 2024?",
+  "What credit risks does JPMorgan disclose?",
+  "Compare Apple and Microsoft revenue",
+];
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function renderAnswer(text) {
+  $("answer").classList.remove("placeholder");
+  $("answer").innerHTML = esc(text).replace(
+    /\[(\d{1,2})\]/g,
+    (m, n) => `<span class="cite" data-n="${n}">${n}</span>`
+  );
+  document.querySelectorAll("#answer .cite").forEach(el => {
+    el.onclick = () => focusSource(parseInt(el.dataset.n, 10));
+  });
+}
+
+function focusSource(n) {
+  document.querySelectorAll(".src").forEach(el => el.classList.remove("active"));
+  const el = document.querySelector(`.src[data-n="${n}"]`);
+  if (el) {
+    el.classList.add("active");
+    el.classList.add("open");
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
+function renderSources(contexts) {
+  state.contexts = contexts;
+  if (!contexts.length) {
+    $("sources").className = "placeholder";
+    $("sources").textContent = "No passages retrieved.";
+    return;
+  }
+  $("sources").className = "";
+  $("sources").innerHTML = contexts.map((c, i) => {
+    const arms = Object.entries(c.component_scores || {})
+      .filter(([k]) => !k.endsWith("_rank"))
+      .map(([k]) => k).join(" + ") || c.stage;
+    return `<div class="src" data-n="${i + 1}">
+      <div class="src-head">
+        <span class="src-n">${i + 1}</span>
+        <span class="src-label">${esc(c.label)}</span>
+        <span class="src-score">${arms} score ${Number(c.score).toFixed(3)}</span>
+      </div>
+      <div class="src-body ${c.kind === "table" ? "table" : ""}">${esc(c.text)}</div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll(".src").forEach(el => {
+    el.onclick = () => el.classList.toggle("open");
+  });
+}
+
+function renderFigures(figs) {
+  if (!figs || !figs.length) { $("figures-card").style.display = "none"; return; }
+  $("figures-card").style.display = "";
+  $("figures").innerHTML = figs.map(f => {
+    const v = f.value === null ? "N/A"
+      : (f.unit === "percent" ? f.value.toFixed(2) + "%" : Number(f.value).toLocaleString());
+    const inputs = Object.entries(f.inputs || {})
+      .map(([k, x]) => `${k} = ${Number(x).toLocaleString()}`).join("   ");
+    return `<div class="fig">
+      <div class="fig-label">${esc(f.label)}</div>
+      <div class="fig-value">${esc(v)}</div>
+      <div class="fig-formula">${esc(f.formula)}${inputs ? "<br>" + esc(inputs) : ""}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderBadges(d, route, reranker) {
+  const g = d.groundedness ?? 0;
+  const gCls = g >= 0.6 ? "good" : g >= 0.4 ? "warn" : "bad";
+  const sCls = d.status === "ok" ? "good" : "warn";
+  const out = [
+    `<span class="badge ${sCls}">${esc(d.status)}</span>`,
+    `<span class="badge ${gCls}">groundedness ${g.toFixed(2)}</span>`,
+  ];
+  if (route) {
+    out.push(`<span class="badge">intent: ${esc(route.intent)} (${route.confidence.toFixed(2)})</span>`);
+  }
+  if (reranker) out.push(`<span class="badge">reranker: ${esc(reranker)}</span>`);
+  if (d.latency_ms) out.push(`<span class="badge">${Math.round(d.latency_ms)} ms</span>`);
+  if (d.cached) out.push(`<span class="badge good">cached</span>`);
+  if (d.citations) out.push(`<span class="badge">${d.citations.length} citations</span>`);
+  $("badges").innerHTML = out.join("");
+  if (d.refusal_reason) {
+    $("error").textContent = d.refusal_reason;
+  }
+}
+
+function renderTrace(trace) {
+  if (!trace) return;
+  const stages = trace.stage_timings_ms || {};
+  const total = Math.max(1, ...Object.values(stages));
+  const rows = Object.entries(stages)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, ms]) =>
+      `<tr><td>${esc(name)}<div class="bar" style="width:${(ms / total * 100).toFixed(1)}%"></div></td>
+       <td>${ms.toFixed(1)} ms</td></tr>`);
+  const u = trace.usage || {};
+  rows.push(`<tr><td>total</td><td>${(trace.duration_ms || 0).toFixed(1)} ms</td></tr>`);
+  rows.push(`<tr><td>tokens (prompt + completion)</td><td>${u.prompt_tokens || 0} + ${u.completion_tokens || 0}</td></tr>`);
+  rows.push(`<tr><td>LLM calls</td><td>${u.llm_calls || 0}</td></tr>`);
+  rows.push(`<tr><td>estimated cost at list price</td><td>$${(trace.estimated_cost_usd || 0).toFixed(6)}</td></tr>`);
+  rows.push(`<tr><td>trace id</td><td>${esc(trace.trace_id || "")}</td></tr>`);
+  $("trace").innerHTML = rows.join("");
+}
+
+async function ask() {
+  if (state.streaming) return;
+  const question = $("q").value.trim();
+  if (!question) return;
+
+  state.streaming = true;
+  $("go").disabled = true;
+  $("error").textContent = "";
+  $("badges").innerHTML = "";
+  $("figures-card").style.display = "none";
+  $("answer").className = "placeholder";
+  $("answer").textContent = "Retrieving...";
+  $("sources").className = "placeholder";
+  $("sources").textContent = "Retrieving...";
+
+  const body = {
+    question,
+    top_k: 6,
+    companies: $("ticker").value ? [$("ticker").value] : [],
+    reranker: $("reranker").value,
+    use_reranker: $("reranker").value !== "none",
+    use_cache: $("cache").checked,
+  };
+
+  let acc = "";
+  let reranker = "";
+  let route = null;
+
+  try {
+    const res = await fetch("/v1/query/stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const parts = buffer.split("\n\n");
+      buffer = parts.pop();
+
+      for (const block of parts) {
+        const evLine = block.split("\n").find(l => l.startsWith("event: "));
+        const dataLine = block.split("\n").find(l => l.startsWith("data: "));
+        if (!evLine || !dataLine) continue;
+        const ev = evLine.slice(7).trim();
+        const data = JSON.parse(dataLine.slice(6));
+
+        if (ev === "meta") {
+          route = data.route;
+          reranker = data.reranker;
+          renderSources(data.contexts || []);
+          renderFigures(data.numeric_results || []);
+          acc = "";
+          $("answer").className = "";
+          $("answer").textContent = "";
+        } else if (ev === "token") {
+          acc += data.text;
+          renderAnswer(acc);
+        } else if (ev === "done") {
+          renderAnswer(acc);
+          renderBadges(data, route, reranker);
+          renderTrace(data.trace);
+        } else if (ev === "error") {
+          $("error").textContent = data.message || "Request failed";
+        }
+      }
+    }
+  } catch (e) {
+    $("error").textContent = "Request failed: " + e.message;
+    $("answer").className = "placeholder";
+    $("answer").textContent = "Something went wrong.";
+  } finally {
+    state.streaming = false;
+    $("go").disabled = false;
+  }
+}
+
+async function loadStats() {
+  try {
+    const s = await (await fetch("/v1/stats")).json();
+    $("corpus").textContent =
+      `${s.corpus_chunks.toLocaleString()} chunks | ${s.xbrl_rows} facts | ${(s.tickers || []).join(" ")}`;
+    const sel = $("ticker");
+    (s.tickers || []).forEach(t => {
+      const o = document.createElement("option");
+      o.value = t; o.textContent = t; sel.appendChild(o);
+    });
+  } catch {
+    $("corpus").textContent = "stats unavailable";
+  }
+}
+
+$("samples").innerHTML = SAMPLES.map(s => `<span class="chip">${esc(s)}</span>`).join("");
+document.querySelectorAll(".chip").forEach(el => {
+  el.onclick = () => { $("q").value = el.textContent; ask(); };
+});
+$("go").onclick = ask;
+$("q").addEventListener("keydown", e => { if (e.key === "Enter") ask(); });
+loadStats();
+</script>
+</body>
+</html>

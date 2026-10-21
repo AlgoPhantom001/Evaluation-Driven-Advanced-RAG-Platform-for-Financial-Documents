@@ -1,0 +1,175 @@
+{
+  "generated_at": "2026-10-21T00:37:56.490661+00:00",
+  "corpus_chunks": 3609,
+  "n_queries": 33,
+  "eval_k": 6,
+  "models": {
+    "dense": "BAAI/bge-small-en-v1.5",
+    "sparse": "prithivida/Splade_PP_en_v1",
+    "reranker": "Xenova/ms-marco-MiniLM-L-6-v2"
+  },
+  "configurations": [
+    {
+      "name": "dense only",
+      "description": "BGE bi-encoder, no fusion",
+      "arms": [
+        "dense"
+      ],
+      "reranker": "none",
+      "hit_rate": 0.8182,
+      "ndcg": 0.7074,
+      "mrr": 0.6854,
+      "precision": 0.5455,
+      "recall": 0.8182,
+      "mean_latency_ms": 105.32,
+      "p95_latency_ms": 116.92,
+      "n_queries": 33,
+      "available": true,
+      "in_sample": false,
+      "note": ""
+    },
+    {
+      "name": "bm25 only",
+      "description": "Okapi BM25 lexical baseline",
+      "arms": [
+        "bm25"
+      ],
+      "reranker": "none",
+      "hit_rate": 0.7576,
+      "ndcg": 0.6683,
+      "mrr": 0.649,
+      "precision": 0.4899,
+      "recall": 0.7576,
+      "mean_latency_ms": 13.05,
+      "p95_latency_ms": 17.37,
+      "n_queries": 33,
+      "available": true,
+      "in_sample": false,
+      "note": ""
+    },
+    {
+      "name": "splade only",
+      "description": "Learned sparse expansion",
+      "arms": [
+        "splade"
+      ],
+      "reranker": "none",
+      "hit_rate": 0.8788,
+      "ndcg": 0.7418,
+      "mrr": 0.702,
+      "precision": 0.5354,
+      "recall": 0.8788,
+      "mean_latency_ms": 831.9,
+      "p95_latency_ms": 908.35,
+      "n_queries": 33,
+      "available": true,
+      "in_sample": false,
+      "note": ""
+    },
+    {
+      "name": "dense + bm25",
+      "description": "Two-arm RRF",
+      "arms": [
+        "dense",
+        "bm25"
+      ],
+      "reranker": "none",
+      "hit_rate": 0.8182,
+      "ndcg": 0.7087,
+      "mrr": 0.6828,
+      "precision": 0.5505,
+      "recall": 0.8182,
+      "mean_latency_ms": 104.49,
+      "p95_latency_ms": 126.01,
+      "n_queries": 33,
+      "available": true,
+      "in_sample": false,
+      "note": ""
+    },
+    {
+      "name": "dense + bm25 + splade",
+      "description": "Three-arm RRF",
+      "arms": [
+        "dense",
+        "bm25",
+        "splade"
+      ],
+      "reranker": "none",
+      "hit_rate": 0.8485,
+      "ndcg": 0.723,
+      "mrr": 0.6864,
+      "precision": 0.5606,
+      "recall": 0.8485,
+      "mean_latency_ms": 1150.15,
+      "p95_latency_ms": 1262.29,
+      "n_queries": 33,
+      "available": true,
+      "in_sample": false,
+      "note": ""
+    },
+    {
+      "name": "hybrid + LTR",
+      "description": "LambdaMART over features",
+      "arms": [
+        "dense",
+        "bm25",
+        "splade"
+      ],
+      "reranker": "ltr",
+      "hit_rate": 0.9394,
+      "ndcg": 0.9394,
+      "mrr": 0.9394,
+      "precision": 0.9293,
+      "recall": 0.9394,
+      "mean_latency_ms": 1208.79,
+      "p95_latency_ms": 1342.17,
+      "n_queries": 33,
+      "available": true,
+      "in_sample": true,
+      "note": ""
+    },
+    {
+      "name": "hybrid + XGB",
+      "description": "XGBoost rank:ndcg over the same features",
+      "arms": [
+        "dense",
+        "bm25",
+        "splade"
+      ],
+      "reranker": "xgb",
+      "hit_rate": 0.9394,
+      "ndcg": 0.9373,
+      "mrr": 0.9394,
+      "precision": 0.904,
+      "recall": 0.9394,
+      "mean_latency_ms": 1196.86,
+      "p95_latency_ms": 1352.36,
+      "n_queries": 33,
+      "available": true,
+      "in_sample": true,
+      "note": ""
+    },
+    {
+      "name": "hybrid + cross-encoder",
+      "description": "MiniLM cross-encoder rerank",
+      "arms": [
+        "dense",
+        "bm25",
+        "splade"
+      ],
+      "reranker": "cross_encoder",
+      "hit_rate": 0.8788,
+      "ndcg": 0.7585,
+      "mrr": 0.7131,
+      "precision": 0.5606,
+      "recall": 0.8788,
+      "mean_latency_ms": 3044.19,
+      "p95_latency_ms": 3487.38,
+      "n_queries": 33,
+      "available": true,
+      "in_sample": false,
+      "note": ""
+    }
+  ],
+  "markdown": "| Configuration | nDCG@6 | Hit@6 | MRR | P@6 | Recall@6 | Mean ms | p95 ms |\n|---|---:|---:|---:|---:|---:|---:|---:|\n| dense only | 0.707 | 0.818 | 0.685 | 0.545 | 0.818 | 105 | 117 |\n| bm25 only | 0.668 | 0.758 | 0.649 | 0.490 | 0.758 | 13 | 17 |\n| splade only | 0.742 | 0.879 | 0.702 | 0.535 | 0.879 | 832 | 908 |\n| dense + bm25 | 0.709 | 0.818 | 0.683 | 0.550 | 0.818 | 104 | 126 |\n| dense + bm25 + splade | 0.723 | 0.849 | 0.686 | 0.561 | 0.849 | 1150 | 1262 |\n| hybrid + LTR \\* | 0.939 | 0.939 | 0.939 | 0.929 | 0.939 | 1209 | 1342 |\n| hybrid + XGB \\* | 0.937 | 0.939 | 0.939 | 0.904 | 0.939 | 1197 | 1352 |\n| hybrid + cross-encoder | 0.758 | 0.879 | 0.713 | 0.561 | 0.879 | 3044 | 3487 |\n\n\\* Trained on these same queries, so this row is training-set performance and is optimistic. Its honest grouped cross-validation score is reported separately below."
+}

@@ -1,0 +1,113 @@
+name: Evaluation gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "evals/**"
+      - ".github/workflows/eval.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "evals/**"
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+env:
+  PYTHONUNBUFFERED: "1"
+  SECRAG_LLM_PROVIDERS: echo
+  SECRAG_ENABLE_SPLADE: "false"
+  SECRAG_EDGAR_USER_AGENT: "sec-rag-platform-ci/0.1.0 (${{ secrets.EDGAR_CONTACT }})"
+
+jobs:
+  evaluate:
+    name: Golden set evaluation
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Cache ONNX model weights
+        uses: actions/cache@v4
+        with:
+          path: data/models
+          key: fastembed-${{ runner.os }}-bge-small-minilm-v1
+
+      - name: Cache EDGAR responses
+        uses: actions/cache@v4
+        with:
+          path: data/raw/edgar
+          key: edgar-${{ hashFiles('src/secrag/corpus.py') }}-v1
+          restore-keys: edgar-
+
+      - name: Build index
+        run: python -m secrag.cli ingest --rebuild
+
+      - name: Train query router
+        run: python -m secrag.cli train-router
+
+      - name: Run evaluation with quality gate
+        run: python -m secrag.cli eval --gate --report-path evals/reports/ci.json
+
+      - name: Retrieval ablation benchmark
+        if: always()
+        run: python -m secrag.cli benchmark --report-path evals/reports/benchmark-ci.json
+
+      - name: Summarise into the job page
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          out = pathlib.Path(os.environ["GITHUB_STEP_SUMMARY"])
+          lines = ["# Evaluation report\n"]
+
+          report = pathlib.Path("evals/reports/ci.json")
+          if report.exists():
+              data = json.loads(report.read_text())
+              status = "PASSED" if data["passed"] else "FAILED"
+              lines.append(f"**Gate: {status}**  ")
+              lines.append(f"{data['n_cases']} cases | {data['corpus_chunks']} chunks | "
+                           f"{data['duration_s']}s\n")
+              lines.append("| Metric | Value | Threshold | Status |")
+              lines.append("|---|---:|---:|:--:|")
+              for name in sorted(data["summary"]):
+                  value = data["summary"][name]
+                  threshold = data["thresholds"].get(name)
+                  if threshold is None:
+                      lines.append(f"| {name} | {value:.4f} | - | |")
+                  else:
+                      mark = "PASS" if value >= threshold else "FAIL"
+                      lines.append(f"| {name} | {value:.4f} | {threshold:.4f} | {mark} |")
+              if data["failures"]:
+                  lines.append("\n**Failures**\n")
+                  lines += [f"- {f}" for f in data["failures"]]
+
+          bench = pathlib.Path("evals/reports/benchmark-ci.json")
+          if bench.exists():
+              lines.append("\n# Retrieval ablation\n")
+              lines.append(json.loads(bench.read_text())["markdown"])
+
+          out.write_text("\n".join(lines))
+          PY
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-reports
+          path: evals/reports/
+          retention-days: 30

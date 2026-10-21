@@ -1,0 +1,23 @@
+services:
+  secrag:
+    build: .
+    image: sec-rag-platform:local
+    ports:
+      - "7860:7860"
+    environment:
+      SECRAG_GROQ_API_KEY: ${SECRAG_GROQ_API_KEY:-}
+      SECRAG_GEMINI_API_KEY: ${SECRAG_GEMINI_API_KEY:-}
+      SECRAG_EDGAR_USER_AGENT: ${SECRAG_EDGAR_USER_AGENT:-sec-rag-platform/0.1.0 (contact@example.com)}
+      SECRAG_LOG_JSON: "true"
+      SECRAG_ENABLE_SPLADE: ${SECRAG_ENABLE_SPLADE:-false}
+    volumes:
+      - secrag-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:7860/health',timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  secrag-data:

@@ -1,0 +1,82 @@
+name: Deploy to Hugging Face Space
+
+on:
+  workflow_run:
+    workflows: ["CI", "Evaluation gate"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-space
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build index and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
+    env:
+      SECRAG_LLM_PROVIDERS: echo
+      SECRAG_ENABLE_SPLADE: "false"
+      SECRAG_EDGAR_USER_AGENT: "sec-rag-platform-ci/0.1.0 (${{ secrets.EDGAR_CONTACT }})"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip when the Space is not configured
+        id: guard
+        run: |
+          if [ -z "${{ secrets.HF_TOKEN }}" ]; then
+            echo "HF_TOKEN is not set. Skipping deployment."
+            echo "Add HF_TOKEN and HF_USERNAME under Settings, Secrets and variables, Actions."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.guard.outputs.configured == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        if: steps.guard.outputs.configured == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Cache EDGAR responses
+        if: steps.guard.outputs.configured == 'true'
+        uses: actions/cache@v4
+        with:
+          path: data/raw/edgar
+          key: edgar-${{ hashFiles('src/secrag/corpus.py') }}-v1
+          restore-keys: edgar-
+
+      - name: Cache ONNX weights
+        if: steps.guard.outputs.configured == 'true'
+        uses: actions/cache@v4
+        with:
+          path: data/models
+          key: fastembed-${{ runner.os }}-bge-small-minilm-v1
+
+      - name: Build the index the Space will ship with
+        if: steps.guard.outputs.configured == 'true'
+        run: |
+          python -m secrag.cli ingest --rebuild
+          python -m secrag.cli train-router
+          python -m secrag.cli train-ltr
+
+      - name: Publish
+        if: steps.guard.outputs.configured == 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python scripts/deploy_space.py \
+            --username "${{ secrets.HF_USERNAME }}" \
+            --space "${{ secrets.HF_SPACE || 'sec-rag-platform' }}"

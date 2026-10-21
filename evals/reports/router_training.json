@@ -1,0 +1,44 @@
+{
+  "cv_accuracy": 0.9604,
+  "cv_macro_f1": 0.9604,
+  "per_class_f1": {
+    "comparative": 0.9565,
+    "factoid": 0.9474,
+    "multi_hop": 0.9565,
+    "numeric": 0.9811
+  },
+  "confusion_matrix": [
+    [
+      22,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      27,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      22,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      26
+    ]
+  ],
+  "labels": [
+    "comparative",
+    "factoid",
+    "multi_hop",
+    "numeric"
+  ],
+  "n_examples": 101,
+  "n_features": 392
+}

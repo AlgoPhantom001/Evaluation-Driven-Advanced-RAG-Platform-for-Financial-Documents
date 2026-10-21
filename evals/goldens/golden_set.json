@@ -1,0 +1,578 @@
+{
+  "description": "Golden evaluation set for sec-rag-platform. Retrieval relevance is judged by weak supervision: a chunk counts as relevant when it comes from an expected 10-K Item and contains at least one expected term. Numeric expectations are verified against figures filed with the SEC.",
+  "version": 1,
+  "cases": [
+    {
+      "id": "risk-supply-aapl",
+      "question": "What supply chain risks does Apple disclose in its filings?",
+      "intent": "factoid",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "supply",
+        "supplier",
+        "manufacturing",
+        "component"
+      ],
+      "must_include": [],
+      "notes": "Core retrieval case: narrative risk disclosure with distinctive vocabulary."
+    },
+    {
+      "id": "risk-competition-aapl",
+      "question": "How does Apple describe competition in its industry?",
+      "intent": "factoid",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors",
+        "item_1_business"
+      ],
+      "expected_terms": [
+        "competit",
+        "market",
+        "price"
+      ]
+    },
+    {
+      "id": "risk-cyber-aapl",
+      "question": "What cybersecurity and information security risks are disclosed?",
+      "intent": "factoid",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "security",
+        "cyber",
+        "information",
+        "data"
+      ]
+    },
+    {
+      "id": "risk-legal-aapl",
+      "question": "What legal proceedings does Apple describe?",
+      "intent": "factoid",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_3_legal_proceedings",
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "legal",
+        "litigation",
+        "court",
+        "proceeding",
+        "claim"
+      ]
+    },
+    {
+      "id": "mda-results-aapl",
+      "question": "What does Apple's management discussion say about results of operations?",
+      "intent": "factoid",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_7_mda"
+      ],
+      "expected_terms": [
+        "revenue",
+        "increase",
+        "decrease",
+        "margin",
+        "operating"
+      ]
+    },
+    {
+      "id": "controls-aapl",
+      "question": "What does the filing conclude about internal control over financial reporting?",
+      "intent": "factoid",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_9a_controls"
+      ],
+      "expected_terms": [
+        "internal control",
+        "effective",
+        "financial reporting"
+      ]
+    },
+    {
+      "id": "business-products-aapl",
+      "question": "What products and services does Apple describe in its business section?",
+      "intent": "factoid",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_1_business"
+      ],
+      "expected_terms": [
+        "iphone",
+        "mac",
+        "services",
+        "products",
+        "wearables"
+      ]
+    },
+    {
+      "id": "risk-supply-msft",
+      "question": "What operational and supply risks does Microsoft disclose?",
+      "intent": "factoid",
+      "companies": [
+        "MSFT"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "supply",
+        "datacenter",
+        "capacity",
+        "operation"
+      ]
+    },
+    {
+      "id": "risk-ai-msft",
+      "question": "What risks does Microsoft disclose about artificial intelligence?",
+      "intent": "factoid",
+      "companies": [
+        "MSFT"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "artificial intelligence",
+        "ai ",
+        "model"
+      ]
+    },
+    {
+      "id": "mda-msft",
+      "question": "What does Microsoft's management discussion say about revenue drivers?",
+      "intent": "factoid",
+      "companies": [
+        "MSFT"
+      ],
+      "expected_sections": [
+        "item_7_mda"
+      ],
+      "expected_terms": [
+        "revenue",
+        "cloud",
+        "increase",
+        "segment"
+      ]
+    },
+    {
+      "id": "risk-export-nvda",
+      "question": "What does NVIDIA say about export controls and trade restrictions?",
+      "intent": "factoid",
+      "companies": [
+        "NVDA"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "export",
+        "license",
+        "china",
+        "restriction",
+        "control"
+      ]
+    },
+    {
+      "id": "risk-concentration-nvda",
+      "question": "What customer concentration risks does NVIDIA disclose?",
+      "intent": "factoid",
+      "companies": [
+        "NVDA"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "customer",
+        "concentration",
+        "demand",
+        "significant portion"
+      ]
+    },
+    {
+      "id": "business-nvda",
+      "question": "How does NVIDIA describe its business segments?",
+      "intent": "factoid",
+      "companies": [
+        "NVDA"
+      ],
+      "expected_sections": [
+        "item_1_business",
+        "item_7_mda"
+      ],
+      "expected_terms": [
+        "data center",
+        "gaming",
+        "segment",
+        "platform"
+      ]
+    },
+    {
+      "id": "risk-credit-jpm",
+      "question": "What credit and market risks does JPMorgan disclose?",
+      "intent": "factoid",
+      "companies": [
+        "JPM"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "credit",
+        "market risk",
+        "loss",
+        "exposure",
+        "capital"
+      ]
+    },
+    {
+      "id": "risk-regulation-jpm",
+      "question": "What regulatory and capital requirement risks are disclosed by the bank?",
+      "intent": "factoid",
+      "companies": [
+        "JPM"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "regulat",
+        "capital",
+        "requirement",
+        "basel",
+        "liquidity"
+      ]
+    },
+    {
+      "id": "risk-generic-all",
+      "question": "What risks relate to global economic and geopolitical conditions?",
+      "intent": "factoid",
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "economic",
+        "geopolitical",
+        "global",
+        "condition",
+        "inflation"
+      ]
+    },
+    {
+      "id": "risk-currency-all",
+      "question": "How is foreign currency exchange rate risk described?",
+      "intent": "factoid",
+      "expected_sections": [
+        "item_1a_risk_factors",
+        "item_7a_market_risk",
+        "item_7_mda"
+      ],
+      "expected_terms": [
+        "currency",
+        "exchange rate",
+        "foreign"
+      ]
+    },
+    {
+      "id": "num-revenue-aapl-2024",
+      "question": "What was Apple's total revenue in fiscal 2024?",
+      "intent": "numeric",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_7_mda",
+        "item_8_financial_statements"
+      ],
+      "expected_terms": [
+        "revenue",
+        "net sales",
+        "total"
+      ],
+      "expected_value": 391035000000,
+      "tolerance_pct": 0.5,
+      "notes": "Verified against Apple's FY2024 10-K as filed."
+    },
+    {
+      "id": "num-revenue-aapl-2023",
+      "question": "What was Apple's total revenue in fiscal 2023?",
+      "intent": "numeric",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_7_mda",
+        "item_8_financial_statements"
+      ],
+      "expected_terms": [
+        "revenue",
+        "net sales"
+      ],
+      "expected_value": 383285000000,
+      "tolerance_pct": 0.5
+    },
+    {
+      "id": "num-revenue-msft-2024",
+      "question": "What was Microsoft's total revenue in fiscal 2024?",
+      "intent": "numeric",
+      "companies": [
+        "MSFT"
+      ],
+      "expected_sections": [
+        "item_7_mda",
+        "item_8_financial_statements"
+      ],
+      "expected_terms": [
+        "revenue",
+        "total"
+      ],
+      "expected_value": 245122000000,
+      "tolerance_pct": 0.5
+    },
+    {
+      "id": "num-gross-margin-aapl-2024",
+      "question": "What was Apple's gross margin in fiscal 2024?",
+      "intent": "numeric",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_7_mda",
+        "item_8_financial_statements"
+      ],
+      "expected_terms": [
+        "gross margin",
+        "gross"
+      ],
+      "expected_value": 46.21,
+      "tolerance_pct": 2.0,
+      "notes": "Ratio computed from filed gross profit and revenue."
+    },
+    {
+      "id": "num-net-margin-aapl-2024",
+      "question": "What was Apple's net profit margin in fiscal 2024?",
+      "intent": "numeric",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_7_mda",
+        "item_8_financial_statements"
+      ],
+      "expected_terms": [
+        "net income",
+        "margin"
+      ],
+      "expected_value": 23.97,
+      "tolerance_pct": 2.0
+    },
+    {
+      "id": "num-growth-aapl",
+      "question": "How much did Apple's revenue change from fiscal 2022 to fiscal 2024?",
+      "intent": "numeric",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_7_mda",
+        "item_8_financial_statements"
+      ],
+      "expected_terms": [
+        "revenue",
+        "increase",
+        "decrease"
+      ],
+      "expected_value": -0.84,
+      "tolerance_pct": 15.0,
+      "notes": "Percentage change. Wide tolerance because the value is near zero."
+    },
+    {
+      "id": "num-cagr-aapl",
+      "question": "What was Apple's revenue CAGR from fiscal 2020 to fiscal 2024?",
+      "intent": "numeric",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_7_mda",
+        "item_8_financial_statements"
+      ],
+      "expected_terms": [
+        "revenue"
+      ],
+      "expected_value": 9.25,
+      "tolerance_pct": 3.0
+    },
+    {
+      "id": "cmp-margin-aapl-msft",
+      "question": "Compare the gross margin of Apple and Microsoft",
+      "intent": "comparative",
+      "companies": [
+        "AAPL",
+        "MSFT"
+      ],
+      "expected_sections": [
+        "item_7_mda",
+        "item_8_financial_statements"
+      ],
+      "expected_terms": [
+        "margin",
+        "gross",
+        "revenue"
+      ]
+    },
+    {
+      "id": "cmp-risk-aapl-msft",
+      "question": "How do the risk factors of Apple and Microsoft differ?",
+      "intent": "comparative",
+      "companies": [
+        "AAPL",
+        "MSFT"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "risk",
+        "could",
+        "adversely"
+      ]
+    },
+    {
+      "id": "cmp-revenue-all",
+      "question": "Which company reported higher revenue, Apple or Microsoft?",
+      "intent": "comparative",
+      "companies": [
+        "AAPL",
+        "MSFT"
+      ],
+      "expected_sections": [
+        "item_7_mda",
+        "item_8_financial_statements"
+      ],
+      "expected_terms": [
+        "revenue",
+        "total"
+      ]
+    },
+    {
+      "id": "hop-risk-change-aapl",
+      "question": "How did Apple's risk factor disclosures change between fiscal years?",
+      "intent": "multi_hop",
+      "companies": [
+        "AAPL"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "risk",
+        "could",
+        "adversely",
+        "material"
+      ]
+    },
+    {
+      "id": "hop-ai-change",
+      "question": "How has the discussion of artificial intelligence changed across the filings?",
+      "intent": "multi_hop",
+      "expected_sections": [
+        "item_1a_risk_factors",
+        "item_7_mda",
+        "item_1_business"
+      ],
+      "expected_terms": [
+        "artificial intelligence",
+        "ai ",
+        "machine learning"
+      ]
+    },
+    {
+      "id": "refusal-out-of-corpus",
+      "question": "What was Tesla's battery production capacity in fiscal 2024?",
+      "intent": "factoid",
+      "companies": [],
+      "expected_sections": [],
+      "expected_terms": [],
+      "expect_refusal": true,
+      "notes": "Tesla is not in the corpus. The system must decline rather than answer from the nearest available filing."
+    },
+    {
+      "id": "risk-supply-wmt",
+      "question": "What supply chain and inventory risks does Walmart disclose?",
+      "intent": "factoid",
+      "companies": [
+        "WMT"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors"
+      ],
+      "expected_terms": [
+        "supply",
+        "inventory",
+        "merchandise",
+        "supplier",
+        "distribution"
+      ]
+    },
+    {
+      "id": "risk-competition-wmt",
+      "question": "How does Walmart describe competition in retail?",
+      "intent": "factoid",
+      "companies": [
+        "WMT"
+      ],
+      "expected_sections": [
+        "item_1a_risk_factors",
+        "item_1_business"
+      ],
+      "expected_terms": [
+        "competit",
+        "retail",
+        "price",
+        "customer"
+      ]
+    },
+    {
+      "id": "business-wmt",
+      "question": "What operating segments does Walmart describe?",
+      "intent": "factoid",
+      "companies": [
+        "WMT"
+      ],
+      "expected_sections": [
+        "item_1_business",
+        "item_7_mda"
+      ],
+      "expected_terms": [
+        "segment",
+        "international",
+        "sam's club",
+        "ecommerce",
+        "walmart u.s."
+      ]
+    }
+  ]
+}
